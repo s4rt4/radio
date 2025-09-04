@@ -22,3 +22,5 @@ Mendukung **visualizer audio**, **multi-source radio** (Indonesia & Internasiona
 ---
 
 ## 📂 Struktur Project
+
+![Preview](struktur.png)
