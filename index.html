@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Klasik Web Radio</title>
+  <link rel="stylesheet" href="style.css"/>
+ 
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- HLS.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <div class="player-card">
+    <h1>🎵 Web Radio Player</h1>
+    
+    <!-- Dropdown daftar radio -->
+    <select id="stations"></select>
+    
+    <!-- Kontrol -->
+    <div class="controls">
+      <button id="playBtn"><i class="fas fa-play"></i></button>
+      <button id="pauseBtn"><i class="fas fa-pause"></i></button>
+      <button id="muteBtn"><i class="fas fa-volume-mute"></i></button>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1"/>
+    </div>
+
+    <!-- Visualizer -->
+    <canvas id="visualizer"></canvas>
+    <p id="status">Select a station to play</p>
+  </div>
+
+  <!-- Audio element -->
+  <audio id="radio" crossorigin="anonymous"></audio>
+
+  <!-- Script urutan HARUS begini -->
+  <script src="stations.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
