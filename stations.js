@@ -1,4 +1,4 @@
-const stationsList = [
+const stationsSource1 = [
   { name: "Bahana Fm", url: "https://stream.cloudmu.id/listen/bahana_fm/stream" },
   { name: "Cosmopolitan", url: "http://stream.radiojar.com/u7d8heq3bnzuv" },
   { name: "Dahlia FM", url: "https://svara-stream.radioddns.net:8443/bandung_dahliafm" },
