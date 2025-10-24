@@ -1,12 +1,23 @@
+// ====== Get DOM Elements ======
 const stationsDropdown = document.getElementById("stations");
 const statusText = document.getElementById("status");
 const audio = document.getElementById("radio");
 const canvas = document.getElementById("visualizer");
 const ctx = canvas.getContext("2d");
 
+// Ambil semua tombol kontrol
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const muteBtn = document.getElementById("muteBtn");
+const volumeSlider = document.getElementById("volume");
+
+// ====== State & Context Variables ======
 let currentStations = stationsSource1; // default Source 1
 let currentSource = "1";
 let audioCtx, analyser, source, dataArray;
+let hls = new Hls(); // ✅ FIX: Buat satu instance HLS secara global
 
 // ====== Load Stations ke Dropdown ======
 function loadStations(list, sourceId) {
@@ -57,11 +68,17 @@ document.querySelectorAll("input[name='source']").forEach(radio => {
 });
 
 // ====== Play ======
-document.getElementById("playBtn").addEventListener("click", () => {
+playBtn.addEventListener("click", () => {
   const url = stationsDropdown.value;
 
+  // ✅ FIX: Hancurkan instance HLS lama sebelum membuat yg baru
+  // Ini mencegah error saat ganti channel HLS
+  if (hls) {
+    hls.destroy();
+    hls = new Hls();
+  }
+
   if (Hls.isSupported() && url.endsWith(".m3u8")) {
-    const hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(audio);
   } else {
@@ -71,6 +88,13 @@ document.getElementById("playBtn").addEventListener("click", () => {
   audio.play()
     .then(() => {
       statusText.textContent = "Now Playing: " + stationsDropdown.selectedOptions[0].textContent;
+      
+      // ✅ FIX: "Bangunkan" AudioContext jika tertidur (Chrome policy)
+      // Ini memastikan visualizer langsung jalan
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      
       initVisualizer();
     })
     .catch(err => {
@@ -80,17 +104,17 @@ document.getElementById("playBtn").addEventListener("click", () => {
 });
 
 // ====== Pause ======
-document.getElementById("pauseBtn").addEventListener("click", () => {
+pauseBtn.addEventListener("click", () => {
   audio.pause();
   statusText.textContent = "Paused";
 });
 
 // ====== Volume & Mute ======
-document.getElementById("volume").addEventListener("input", e => {
+volumeSlider.addEventListener("input", e => {
   audio.volume = e.target.value;
 });
 
-document.getElementById("muteBtn").addEventListener("click", (e) => {
+muteBtn.addEventListener("click", (e) => {
   audio.muted = !audio.muted;
   const icon = e.currentTarget.querySelector("i");
   if (audio.muted) {
@@ -104,7 +128,74 @@ document.getElementById("muteBtn").addEventListener("click", (e) => {
   }
 });
 
-// ====== Visualizer ======
+
+// ====== 🌟 NEW: Tombol Next / Previous 🌟 ======
+
+function changeStation(direction) {
+  let currentIndex = stationsDropdown.selectedIndex;
+  const totalStations = stationsDropdown.options.length;
+
+  if (direction === 'next') {
+    currentIndex++;
+    // Jika sudah di akhir, putar kembali ke awal
+    if (currentIndex >= totalStations) {
+      currentIndex = 0;
+    }
+  } else if (direction === 'prev') {
+    currentIndex--;
+    // Jika sudah di awal, putar ke akhir
+    if (currentIndex < 0) {
+      currentIndex = totalStations - 1;
+    }
+  }
+
+  // Set dropdown ke stasiun baru
+  stationsDropdown.selectedIndex = currentIndex;
+
+  // Otomatis putar stasiun baru dengan memanggil event click Play
+  playBtn.click(); 
+}
+
+nextBtn.addEventListener("click", () => {
+  changeStation('next');
+});
+
+prevBtn.addEventListener("click", () => {
+  changeStation('prev');
+});
+
+
+// ====== 🌟 NEW: Tooltip Dinamis untuk Next/Previous 🌟 ======
+
+function updateTooltip(button, direction) {
+  let currentIndex = stationsDropdown.selectedIndex;
+  const totalStations = stationsDropdown.options.length;
+  let targetIndex;
+
+  if (direction === 'next') {
+    targetIndex = (currentIndex + 1) >= totalStations ? 0 : currentIndex + 1;
+  } else {
+    targetIndex = (currentIndex - 1) < 0 ? totalStations - 1 : currentIndex - 1;
+  }
+
+  // Ambil nama stasiun dari opsi dropdown
+  const stationName = stationsDropdown.options[targetIndex].textContent;
+  
+  // Atur atribut 'title' (tooltip bawaan browser)
+  button.title = stationName;
+}
+
+// Update tooltip saat mouse hover
+nextBtn.addEventListener("mouseover", () => {
+  updateTooltip(nextBtn, 'next');
+});
+
+prevBtn.addEventListener("mouseover", () => {
+  updateTooltip(prevBtn, 'prev');
+});
+
+
+// ====== Visualizer (Tidak ada perubahan) ======
 function initVisualizer() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -146,7 +237,7 @@ function drawVisualizer() {
   }
 }
 
-// Resize canvas otomatis
+// ====== Resize canvas (Tidak ada perubahan) ======
 window.addEventListener("resize", () => {
   canvas.width = canvas.offsetWidth;
   canvas.height = 150;

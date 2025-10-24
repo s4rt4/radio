@@ -36,17 +36,21 @@ select {
 .controls button {
   background: #795548;
   color: #ffd700;
-  border: none;
-  padding: 12px 15px;
+  border: 1px solid #ffd700;
+  /* Hapus padding, ganti dengan width/height */
+  width: 45px;  /* Atur lebar */
+  height: 45px; /* Atur tinggi (harus sama dengan lebar) */
   margin: 5px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 16px;
+  line-height: 45px; /* Bonus: Ini membantu ikon di tengah secara vertikal */
   transition: background 0.3s, transform 0.2s;
 }
 
 .controls button:hover {
-  background: #a1887f;
+  background: #ffd700; /* ✅ Warna Emas */
+  color: #4E342E;     /* ✅ Warna Ikon Coklat Tua */
   transform: scale(1.1);
 }
 
@@ -116,4 +120,46 @@ input[type="range"]::-moz-range-thumb {
   border-top: 1px solid goldenrod;
   color: goldenrod;
   font-size: 14px;
+}
+
+/* FIX VISUAL: 
+  Menggeser icon yg tidak simetris secara manual (1px ke atas)
+*/
+
+.controls button .fas {
+  position: relative;
+  /* Gunakan 'bottom: 1px' ATAU 'top: -1px'. Keduanya sama-sama
+    menggeser elemen 1px ke atas.
+  */
+  bottom: 1px; 
+}
+
+/* Kita mungkin perlu geser 'Play' sedikit lagi secara horizontal
+  karena bentuknya segitiga. Ini opsional.
+*/
+#playBtn .fa-play {
+  left: 1px; /* Coba 1px atau 2px ke kanan */
+}
+
+input[type="radio"]:checked {
+  accent-color: #ffd700; /* Warna emas */
+}
+
+/* Mencoba memberi style pada <option> di dropdown */
+select option {
+  background: #4e342e; /* Background coklat tua */
+  color: #f5deb3;      /* Teks keemasan lembut */
+}
+
+/* Mencoba mengganti warna highlight biru.
+  PERINGATAN: Ini TIDAK AKAN BERHASIL di banyak browser (spt. Chrome)
+*/
+select option:hover {
+  background: #a1887f; /* Coklat muda saat di-hover */
+  color: #ffd700;
+}
+
+select option:checked {
+  background: #ffd700; /* Emas saat dipilih */
+  color: #3e2723;      /* Teks coklat tua */
 }
